@@ -87,9 +87,23 @@ ORDER BY preference_count DESC, preferred_break_to_stay_healthy DESC;
 
 -- Q5. What role do personal values and social impact play in career choices for Gen-Z?
 
-SELECT meaningful_impact_of_work, work_involves_passion, ROUND(AVG(min_salary_after_5_years_in_k),1) * 10000 AS avg_expected_salary
+SELECT meaningful_impact_of_work, work_involves_passion, COUNT(*) AS respondents,
+CASE 
+WHEN meaningful_impact_of_work = 'Yes' AND work_involves_passion = 'Yes' THEN 'High Passion & High Impact'
+WHEN meaningful_impact_of_work = 'Yes' AND work_involves_passion = 'No' THEN 'Low Passion & High Impact'
+WHEN meaningful_impact_of_work = 'No' AND work_involves_passion = 'Yes' THEN 'High Passion & Low Impact'
+ELSE 'Low Passion & Low Impact'
+END AS category, 
+ROUND(AVG(
+CASE min_salary_after_5_years_in_k
+WHEN '30-50' THEN 40
+WHEN '50-70' THEN 60
+WHEN '71-90' THEN 80.5
+WHEN '91-110' THEN 100.5
+WHEN '111-130' THEN 120.5
+WHEN '131-150' THEN 140.5
+WHEN '151+' THEN 160
+END),1) * 1000 AS avg_expected_salary
 FROM career_aspirations
-GROUP BY meaningful_impact_of_work, work_involves_passion
-ORDER BY avg_expected_salary DESC;
-
-
+GROUP BY category, meaningful_impact_of_work, work_involves_passion
+ORDER BY respondents DESC;
